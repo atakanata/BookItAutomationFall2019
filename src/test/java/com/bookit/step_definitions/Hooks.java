@@ -18,6 +18,7 @@ public class Hooks {
     /**
      * This hook will be executed only for scenarios that are annotated with @db tag
      */
+
     @After("@db")
     public void dbTearDown(){
         DBUtility.destroy();
