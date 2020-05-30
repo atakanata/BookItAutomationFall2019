@@ -14,7 +14,7 @@ Feature: Rooms
     And user accepts content type as "application/json"
     When user sends GET request to "/api/rooms"
     Then user should be able to see all room names
-    And user verifies that response status code is 200​
+    And user verifies that response status code is 200
 
   @verify_room_names
   Scenario: 3. Verify rooms names
