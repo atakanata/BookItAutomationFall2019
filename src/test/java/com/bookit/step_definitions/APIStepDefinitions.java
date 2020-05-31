@@ -37,7 +37,7 @@ public class APIStepDefinitions {
             contentType = ContentType.JSON;
         } else if (string.toLowerCase().contains("xml")) {
             contentType = ContentType.XML;
-        } else if(string.toLowerCase().contains("html")){
+        } else if (string.toLowerCase().contains("html")) {
             contentType = ContentType.HTML;
         }
     }
@@ -46,6 +46,7 @@ public class APIStepDefinitions {
     public void user_sends_GET_request_to(String path) {
         response = given().accept(contentType).auth().oauth2(token).when().get(path).prettyPeek();
     }
+
     //  Then user should be able to see 18 rooms
     @Then("user should be able to see {int} rooms")
     public void user_should_be_able_to_see_rooms(int expectedNumberOfRooms) {
@@ -62,7 +63,7 @@ public class APIStepDefinitions {
     public void user_should_be_able_to_see_all_room_names() {
         List<Room> rooms = response.jsonPath().getList("", Room.class);
 //        rooms.forEach(room -> System.out.println(room.getName()));
-        for(Room room: rooms){
+        for (Room room : rooms) {
             System.out.println(room.getName());
         }
     }
@@ -73,19 +74,19 @@ public class APIStepDefinitions {
         Assert.assertTrue(roomNames.containsAll(dataTable));
         MatcherAssert.assertThat(roomNames, hasItem(in(dataTable)));
     }
+
     //   When user sends POST request to "/api/students/student" with following information:
     @When("user sends POST request to {string} with following information:")
     public void user_sends_POST_request_to_with_following_information(String path, List<Map<String, String>> dataTable) {
-        for(Map<String, ?> user: dataTable) {
+        for (Map<String, ?> user : dataTable) {
             response = given().queryParams(user).contentType(contentType).auth().oauth2(token).when().post(path).prettyPeek();
         }
     }
 
     /**
-     *  Then user deletes previously added students
-     *       | first-name | last-name | email               | password | role                | campus-location | batch-number | team-name      |
-     *       | Lesly      | SDET      | lesly2020@email.com | 1111     | student-team-member | VA              | 15           | Online_Hackers |
-     *
+     * Then user deletes previously added students
+     * | first-name | last-name | email               | password | role                | campus-location | batch-number | team-name      |
+     * | Lesly      | SDET      | lesly2020@email.com | 1111     | student-team-member | VA              | 15           | Online_Hackers |
      */
     @Then("user deletes previously added students")
     public void user_deletes_previously_added_students(List<Map<String, String>> dataTable) {
@@ -95,4 +96,13 @@ public class APIStepDefinitions {
             response.then().statusCode(204);
         }
     }
+//    @Then("user deletes previously added students")
+//    public void user_deletes_previously_added_students(List<Map<String, String>> dataTable) {
+//        Response response = given().auth().oauth2(APIUtilities.getToken(dataTable.get(0).get("email"), dataTable.get(0).get("password"))).
+//                contentType(contentType).
+//                when().get("/api/users/me").prettyPeek();
+//        int id = response.jsonPath().getInt("id");
+//        APIUtilities.deleteUserByID(id).then().statusCode(204);
+//
+//    }
 }
