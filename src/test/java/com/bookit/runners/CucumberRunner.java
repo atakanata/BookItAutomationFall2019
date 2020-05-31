@@ -11,8 +11,9 @@ import org.junit.runner.RunWith;
         plugin = {
                 "json:target/cucumber.json"
         },
-        tags = "@api",
-        dryRun = false
+        tags = "@create_student2",
+        dryRun = false,
+        strict = false
 )
 
 public class CucumberRunner {

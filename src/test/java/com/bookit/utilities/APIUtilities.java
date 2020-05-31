@@ -5,6 +5,15 @@ import io.restassured.response.Response;
 import static io.restassured.RestAssured.*;
 
 public class APIUtilities {
+
+    /**
+     * static block used to initialize static variables.
+     * has highest priority in the execution order:
+     *  1. static block
+     *  2. instance block
+     *  3. constructor
+     *  4. method
+     */
     static {
         baseURI = Environment.BASE_URI;
     }
@@ -12,6 +21,7 @@ public class APIUtilities {
     /**
      * This method is used to retrieve token from the server.
      * Token bust be attached to the header of every API call
+     *
      * @return token
      */
     public static String getToken() {
@@ -29,18 +39,20 @@ public class APIUtilities {
     /**
      * This method is used to retrieve authorization token from the server for specific role.
      * Token bust be attached to the header of every API call
+     *
      * @return token
      */
     public static String getToken(String role) {
         String email = null;
         String password = null;
-        if(role.toLowerCase().contains("teacher")){
+
+        if (role.toLowerCase().contains("teacher")) {
             email = Environment.TEACHER_USERNAME;
             password = Environment.TEACHER_PASSWORD;
-        }else if (role.toLowerCase().contains("lead")){
+        } else if (role.toLowerCase().contains("lead")) {
             email = Environment.LEADER_USERNAME;
             password = Environment.LEADER_PASSWORD;
-        }else {
+        } else {
             email = Environment.MEMBER_USERNAME;
             password = Environment.MEMBER_PASSWORD;
         }
@@ -54,5 +66,61 @@ public class APIUtilities {
         String token = response.jsonPath().getString("accessToken");
         System.out.println("TOKEN :: " + token);
         return token;
+    }
+
+    /**
+     * This method is used to retrieve token from the server.
+     * Token bust be attached to the header of every API call
+     *
+     * @param email    - email of the user
+     * @param password - password the user
+     * @return token
+     */
+    public static String getToken(String email, String password) {
+        Response response = given().
+                queryParam("email", email).
+                queryParam("password", password).
+                when().
+                get("/sign");
+        response.then().log().ifError();//if request failed, print response information
+        String token = response.jsonPath().getString("accessToken");
+        System.out.println("TOKEN :: " + token);
+        return token;
+    }
+
+    /**
+     * This method returns id of logged in user
+     * {
+     * "id": integer,
+     * "firstName": "string",
+     * "lastName": "string",
+     * "role": "string"
+     * }
+     * User credentials
+     *
+     * @param email
+     * @param password
+     * @return user id
+     */
+    public static int getUserID(String email, String password) {
+        String token = getToken(email, password);
+        Response response = given().auth().oauth2(token).when().get(Endpoints.GET_ME);
+        response.then().log().ifError();//print response details in case of error
+        //response.then().statusCode(200);//ensure that it returns 200 status code
+        return response.jsonPath().getInt("id");
+    }
+
+    /**
+     * This method deletes user based on id
+     *
+     * @param id of the user to delete
+     * @return response object
+     */
+    public static Response deleteUserByID(int id) {
+        String token = getToken("teacher");
+        Response response = given().auth().oauth2(token).when().delete(Endpoints.DELETE_STUDENT, id);
+        response.then().log().ifError();
+        System.out.printf("User with id %s was deleted!", id);
+        return response;
     }
 }
